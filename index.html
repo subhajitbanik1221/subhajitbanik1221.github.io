@@ -1,233 +1,235 @@
-<!doctype html>
-<!--
-Copyright 2018 The Immersive Web Community Group
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset='utf-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
+    <meta http-equiv='X-UA-Compatible' content='chrome=1'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
     <meta name='mobile-web-app-capable' content='yes'>
     <meta name='apple-mobile-web-app-capable' content='yes'>
 
-    <!-- Origin Trial Token, feature = WebXR Device API, origin = https://immersive-web.github.io, expires = 2018-08-28 -->
-<meta http-equiv="origin-trial" data-feature="WebXR Device API" data-expires="2018-08-28" content="AnNpu7ceXvLew05ccD8Zr1OZsdZiB2hLQKK82kTTMDwF7oRKtP3QEJ4RzkeHrmB8Sq0vSV6ZNmszpBCZ0I8p9gAAAABceyJvcmlnaW4iOiJodHRwczovL2ltbWVyc2l2ZS13ZWIuZ2l0aHViLmlvOjQ0MyIsImZlYXR1cmUiOiJXZWJYUkRldmljZSIsImV4cGlyeSI6MTUzNTQxNDQwMH0=">
+    <meta name='twitter:card' content='summary'>
+    <meta name='twitter:title' content='WebXR Samples'>
+    <meta name='twitter:description' content='Sample WebXR pages for testing and reference'>
 
-    <title>AR Hit Test</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 
-    <link href='css/common.css' rel='stylesheet'></link>
+    <link rel='stylesheet' href='css/stylesheet.css'>
+    <link rel='stylesheet' href='css/pygment_trac.css'>
 
-    <!--The polyfill is not needed for browser that have native API support,
-        but is linked by these samples for wider compatibility.-->
-    <!--script src='https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.js'></script-->
-    <script src='js/webxr-polyfill.js'></script>
+    <style>
+      article {
+        position: relative;
+        padding: 0.5em;
+        background-color: rgba(255, 255, 255, 0.90);
+        margin-bottom: 1em;
+        border-radius: 3px;
+      }
 
-    <!--This script patches up around implementation differences in past browser versions
-        so that the samples can always be written against the most recent spec changes.
-        It won't be necessary after the API has been officially shipped for a bit.-->
-    <script src='js/webxr-version-shim.js'></script>
+      article h3 {
+        font-size: 1.0em;
+        margin-top: 0px;
+        margin-bottom: 0px;
+      }
 
-    <script src='js/cottontail/build/cottontail.js'></script>
+      article h3::before {
+        display: inline-block;
+        content: attr(data-index) ' - ';
+        font-weight: bold;
+        white-space: nowrap;
+        margin-right: 0.2em;
+      }
 
-    <script src='js/webxr-button.js'></script>
+      article h4 {
+        position: absolute;
+        right: 0.5em;
+        top: 0.5em;
+        margin-top: 0px;
+        margin-bottom: 0px;
+      }
+
+      article p {
+        margin: 0.5em;
+      }
+
+      article .links {
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+      }
+
+      article a {
+        display: inline-block;
+      }
+
+      article a:not(:first-child)::before {
+        display: inline-block;
+        content: '•';
+        font-weight: bold;
+        white-space: nowrap;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+      }
+
+      .github-link {
+        font-size: 0.8em;
+      }
+    </style>
+
+    <!--[if lt IE 9]>
+    <script src='https://html5shiv.googlecode.com/svn/trunk/html5.js'></script>
+    <![endif]-->
+    <title>WebXR - Samples</title>
   </head>
   <body>
-    <header>
-      <details open>
-        <summary>AR Hit Test</summary>
-        <p>
-          This sample demonstrates use of hit testing to place AR objects on real-world surfaces.
-          <a class="back" href="./">Back</a>
-          <br/>
-          <hr/>
-          <input id="useReticle" type="checkbox" checked>
-          <label for="useReticle">Use reticle for placement</label>
-        </p>
-      </details>
-    </header>
-    <script>
-      (function () {
-      'use strict';
-      // If requested, initialize the WebXR polyfill
-      if (QueryArgs.getBool('allowPolyfill', false)) {
-        var polyfill = new WebXRPolyfill();
-      }
-      // Apply the version shim after the polyfill is instantiated, to ensure
-      // that the polyfill also gets patched if necessary.
-      var versionShim = new WebXRVersionShim();
-      let useReticle = document.getElementById('useReticle');
-      // XR globals.
-      let xrButton = null;
-      let xrFrameOfRef = null;
-      let outputCanvas = document.createElement('canvas');
-      outputCanvas.setAttribute('id', 'output-canvas');
-      let ctx = outputCanvas.getContext('xrpresent');
-      // WebGL scene globals.
-      let gl = null;
-      let renderer = null;
-      let scene = new Scene();
-      scene.enableStats(false);
-      let arObject = new Node();
-      arObject.visible = false;
-      scene.addNode(arObject);
-      let flower = new Gltf2Node({url: '../media/gltf/sunflower/sunflower.gltf'});
-      arObject.addNode(flower);
-      // Having a really simple drop shadow underneath an object helps ground
-      // it in the world without adding much complexity.
-      let shadow = new DropShadowNode();
-      vec3.set(shadow.scale, 0.15, 0.15, 0.15);
-      arObject.addNode(shadow);
-      const MAX_FLOWERS = 30;
-      let flowers = [];
-      // Ensure the background is transparent for AR.
-      scene.clear = false;
-      function initXR() {
-        xrButton = new XRDeviceButton({
-          onRequestSession: onRequestSession,
-          onEndSession: onEndSession,
-          textEnterXRTitle: "START AR",
-          textXRNotFoundTitle: "AR NOT FOUND",
-          textExitXRTitle: "EXIT  AR",
-        });
-        document.querySelector('header').appendChild(xrButton.domElement);
-        if (navigator.xr) {
-          navigator.xr.requestDevice().then((device) => {
-            device.supportsSession({ environmentIntegration: true, outputContext: ctx }).then(() => {
-              xrButton.setDevice(device);
-            });
-          });
-        }
-      }
-      function onRequestSession(device) {
-        device.requestSession({ environmentIntegration: true, outputContext: ctx })
-            .then((session) => {
-              // Add the canvas to the document once we know that it will be
-              // rendered to.
-              document.body.appendChild(outputCanvas);
-              xrButton.setSession(session);
-              onSessionStarted(session);
-            });
-      }
-      function onSessionStarted(session) {
-        session.addEventListener('end', onSessionEnded);
-        session.addEventListener('select', onSelect);
-        if (!gl) {
-          gl = createWebGLContext({
-            compatibleXRDevice: session.device
-          });
-          renderer = new Renderer(gl);
-          scene.setRenderer(renderer);
-        }
-        session.baseLayer = new XRWebGLLayer(session, gl);
-        session.requestFrameOfReference('eye-level').then((frameOfRef) => {
-          xrFrameOfRef = frameOfRef;
-          session.requestAnimationFrame(onXRFrame);
-        });
-      }
-      function onEndSession(session) {
-        session.end();
-        // Remove the injected output canvas from the DOM.
-        document.body.removeChild(document.querySelector('#output-canvas'));
-      }
-      function onSessionEnded(event) {
-        xrButton.setSession(null);
-      }
-      // Adds a new object to the scene at the
-      // specificed transform.
-      function addARObjectAt(matrix) {
-        let newFlower = arObject.clone();
-        newFlower.visible = true;
-        newFlower.matrix = matrix;
-        scene.addNode(newFlower);
-        flowers.push(newFlower);
-        // For performance reasons if we add too many objects start
-        // removing the oldest ones to keep the scene complexity
-        // from growing too much.
-        if (flowers.length > MAX_FLOWERS) {
-          let oldFlower = flowers.shift();
-          scene.removeNode(oldFlower);
-        }
-      }
-      let rayOrigin = vec3.create();
-      let rayDirection = vec3.create();
-      function onSelect(event) {
-        if (useReticle.checked && arObject.visible) {
-          // If we're using the reticle then we've already got a mesh positioned
-          // at the latest hit point and we should just use it's matrix to save
-          // an unnecessary requestHitTest call.
-          addARObjectAt(arObject.matrix);
-        } else {
-          // Otherwise we'll use the target ray from the input source that generated
-          // this event to fire off a new hit test.
-          let inputPose = event.frame.getInputPose(event.inputSource, xrFrameOfRef);
-          if (!inputPose) {
-            return;
-          }
-          if (inputPose.targetRay) {
-            vec3.set(rayOrigin,
-                inputPose.targetRay.origin.x,
-                inputPose.targetRay.origin.y,
-                inputPose.targetRay.origin.z);
-            vec3.set(rayDirection,
-                inputPose.targetRay.direction.x,
-                inputPose.targetRay.direction.y,
-                inputPose.targetRay.direction.z);
-            event.frame.session.requestHitTest(rayOrigin, rayDirection, xrFrameOfRef).then((results) => {
-              if (results.length) {
-                addARObjectAt(results[0].hitMatrix);
-              }
-            });
-          }
-        }
-      }
-      // Called every time a XRSession requests that a new frame be drawn.
-      function onXRFrame(t, frame) {
-        let session = frame.session;
-        let pose = frame.getDevicePose(xrFrameOfRef);
-        // If requested, use the pose to cast a reticle into the scene using a
-        // continuous hit test. For the moment we're just using the flower
-        // as the "reticle".
-        if (useReticle.checked && pose && pose.poseModelMatrix) {
-          vec3.set(rayOrigin, 0, 0, 0);
-          vec3.transformMat4(rayOrigin, rayOrigin, pose.poseModelMatrix);
-          vec3.set(rayDirection, 0, 0, -1);
-          vec3.transformMat4(rayDirection, rayDirection, pose.poseModelMatrix);
-          vec3.sub(rayDirection, rayDirection, rayOrigin);
-          vec3.normalize(rayDirection, rayDirection);
-          session.requestHitTest(rayOrigin, rayDirection, xrFrameOfRef).then((results) => {
-            // When the hit test returns use it to place our proxy object.
-            if (results.length) {
-              let hitResult = results[0];
-              arObject.visible = true;
-              arObject.matrix = hitResult.hitMatrix;
-            } else {
-              arObject.visible = false;
+
+    <div class='container' id='container'>
+      <header class='header'>
+        <div id='nav'>
+            <a href='./' class='selected'>Samples</a>
+            <a href='proposals/'>Proposals</a>
+            <a href='tests/'>Test Pages</a>
+        </div>
+
+        <h1><a href='' class='wordmark'><span>WebXR</span></a></h1>
+        <h2 class='tagline'>Sample Pages</h2>
+      </header>
+
+      <main class='main' id='main'>
+        <p>Sample pages demonstrating how to use various aspects of the WebXR API.<br/>
+        <a href="explainer.html">Learn More</a></p>
+
+        <script>
+          let pages = [
+            { title: 'XR Presentation', category: 'Basics',
+              path: 'xr-presentation.html',
+              description: 'Demonstrates how to present a simple WebGL scene to a XRDevice.' },
+
+            { title: 'Mirroring', category: 'Basics',
+              path: 'mirroring.html',
+              description: 'Demonstrates how to mirroring exclusive session content to a canvas.' },
+
+            { title: 'Magic Window', category: 'Basics',
+              path: 'magic-window.html',
+              description: 'Demonstrates use of a non-exclusive XRSession to present "Magic Window" content.' },
+
+            { title: 'Fallback Rendering', category: 'Basics',
+              path: 'fallback-rendering.html',
+              description: 'Demonstrates a way to fallback to rendering the scene when WebXR isn\'t available..' },
+
+            { tag: 'hr' },
+            { tag: 'br' },
+
+            { title: 'Reduced-Bind Rendering', category: 'Performance',
+              path: 'reduced-bind-rendering.html',
+              description: 'Demonstrates a technique to reduce the number of state changes made while rendering.' },
+
+            { title: 'Room Scale', category: 'Basics',
+              path: 'room-scale.html',
+              description: 'Demonstrates using a "stage" frame of reference to provide room scale tracking.' },
+
+            { title: 'Input Tracking', category: 'Input',
+              path: 'input-tracking.html',
+              description: 'Demonstrates basic tracking and rendering of XRInputSources.'},
+
+            { title: 'Input Selection', category: 'Input',
+              path: 'input-selection.html',
+              description: 'Demonstrates handling \'select\' events generated by XRInputSources.'},
+
+            { title: 'Framebuffer Scaling', category: 'Performance',
+              path: 'framebuffer-scaling.html',
+              description: 'Demonstrates scaling a layer\'s framebuffer to statically control performance or quality.' },
+
+            { title: 'Viewport Scaling', category: 'Performance',
+              path: 'viewport-scaling.html',
+              description: 'Demonstrates scaling a layer\'s viewports to dynamically control performance or quality.' },
+
+            { title: '360 Stereo Photos', category: 'Content',
+              path: '360-photos.html',
+              description: 'Demonstrates displaying a 360 degree equirectangular stereo photo.' },
+
+            { title: 'Stereo Video', category: 'Content',
+              path: 'stereo-video.html',
+              description: 'Demonstrates playing stereo videos.' },
+
+            { title: 'Positional Audio', category: 'Content',
+              path: 'positional-audio.html',
+              description: 'Demonstrates playing audio that sounds as if it originates at a specific point in the space.' },
+
+            { title: 'Spectator Mode', category: 'Advanced Techniques',
+              path: 'spectator-mode.html',
+              description: 'Demonstrates rendering a 3rd person view of the scene to an external monitor.' },
+
+            { tag: 'hr' },
+            { tag: 'br' },
+
+            { title: 'Barebones', category: 'WIN32_LEAN_AND_MEAN',
+              path: 'xr-barebones.html',
+              description: 'Extremely simple use of WebXR with no library dependencies. Doesn\'t render anything exciting.' },
+          ];
+
+          let mainElement = document.getElementById("main");
+
+          // Append an element for every item in the pages list.
+          for (var i = 0; i < pages.length; ++i) {
+            var page = pages[i];
+
+            if (page.tag) {
+              mainElement.appendChild(document.createElement(page.tag));
+              continue;
             }
-          });
-        } else {
-          arObject.visible = false;
-        }
-        scene.startFrame();
-        session.requestAnimationFrame(onXRFrame);
-        scene.drawXRFrame(frame, pose);
-        scene.endFrame();
-      }
-      // Start the XR application.
-      initXR();
-      })();
-    </script>
+
+            let article = document.createElement('article');
+
+            let title = document.createElement('h3');
+            title.setAttribute('data-index', i + 1);
+
+            let titleLink = document.createElement('a');
+            titleLink.href = page.path;
+            titleLink.innerHTML = page.title;
+            title.appendChild(titleLink);
+            article.appendChild(title);
+
+            let category = document.createElement('h4');
+            category.innerHTML = page.category;
+            article.appendChild(category);
+
+            let description = document.createElement('p');
+            description.innerHTML = page.description;
+            article.appendChild(description);
+
+            let links = document.createElement('div');
+            links.classList.add('links');
+
+            let liveLink = document.createElement('a');
+            liveLink.href = page.path;
+            liveLink.innerHTML = 'Open';
+            links.appendChild(liveLink);
+
+            let polyfillLink = document.createElement('a');
+            polyfillLink.href = page.path + '?allowPolyfill=1';
+            polyfillLink.innerHTML = 'Open with Polyfill';
+            links.appendChild(polyfillLink);
+
+            let sourceLink = document.createElement('a');
+            sourceLink.href = 'https://github.com/immersive-web/webxr-samples/blob/master/' + page.path;
+            sourceLink.innerHTML = 'Source';
+            links.appendChild(sourceLink);
+
+            article.appendChild(links);
+
+            mainElement.appendChild(article);
+          }
+        </script>
+      </main>
+
+      <p>Models used in these samples come from <a href="https://poly.google.com">Poly</a>, and many were modeled in <a href="https://vr.google.com/blocks/">Blocks</a>.<br/>
+      They a stored and loaded using the <a href="https://www.khronos.org/gltf/">glTF 2.0 format</a>.<br/>
+      Attribution for individual models can be found under the <a href="https://github.com/immersive-web/webxr-samples/tree/master/media/gltf">media/gltf</a> folders for this repository.</p>
+
+      <h3><a class='github-link' href='https://github.com/immersive-web/webxr-samples'>View samples source on GitHub</a></h3>
+
+      <footer class='footer'>
+      </footer>
+    </div>
   </body>
 </html>
