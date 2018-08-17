@@ -2,15 +2,9 @@
     width: 100%;
 }
 a.ar-model-body {
-    height: 1500px;
     width: 100%;
     position: absolute;
     float: left;
-    top: 0;
-    z-index: 1000;
-}
-.ar-model-body img {
-    position: absolute;
-    top: 531px;
+    top: 200px0;
     z-index: 1000;
 }
