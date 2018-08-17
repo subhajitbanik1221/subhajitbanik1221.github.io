@@ -1,10 +1,21 @@
+body {
+    margin: 0;
+}
+
+.fake-body {
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
 .fake-body img {
     width: 100%;
 }
 a.ar-model-body {
-    width: 100%;
+    width: calc(100% - 4px);
     position: absolute;
     float: left;
-    top: 200px;
+    top: 223px;
+    left: 2px;
     z-index: 1000;
 }
