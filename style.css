@@ -15,7 +15,7 @@ a.ar-model-body {
     width: calc(100% - 4px);
     position: absolute;
     float: left;
-    top: 223px;
+    top: 220px;
     left: 2px;
     z-index: 1000;
 }
