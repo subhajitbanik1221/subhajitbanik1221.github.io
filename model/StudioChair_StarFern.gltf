@@ -1,0 +1,306 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5121,
+            "count" : 6,
+            "max" : [
+                3
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 4,
+            "max" : [
+                0.5960857272148132,
+                0.0,
+                0.6471611261367798
+            ],
+            "min" : [
+                -0.5960857272148132,
+                0.0,
+                -0.6471611261367798
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 4,
+            "max" : [
+                0.0,
+                1.0,
+                -0.0
+            ],
+            "min" : [
+                0.0,
+                1.0,
+                -0.0
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 4,
+            "max" : [
+                0.9999000430107117,
+                0.9999000199895818
+            ],
+            "min" : [
+                9.998001041822135e-05,
+                9.995698928833008e-05
+            ],
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5123,
+            "count" : 78276,
+            "max" : [
+                16560
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 16561,
+            "max" : [
+                0.3669528067111969,
+                0.8126251697540283,
+                0.46052172780036926
+            ],
+            "min" : [
+                -0.3643353581428528,
+                0.0002085076121147722,
+                -0.4666648805141449
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 16561,
+            "max" : [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min" : [
+                -1.0,
+                -1.0,
+                -1.0
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 7,
+            "componentType" : 5126,
+            "count" : 16561,
+            "max" : [
+                0.9899528622627258,
+                0.9950000001117587
+            ],
+            "min" : [
+                0.004999999888241291,
+                0.005000054836273193
+            ],
+            "type" : "VEC2"
+        }
+    ],
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 exporter",
+        "version" : "2.0"
+    },
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 6,
+            "byteOffset" : 0,
+            "target" : 34963
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 48,
+            "byteOffset" : 8,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 48,
+            "byteOffset" : 56,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 32,
+            "byteOffset" : 104,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 156552,
+            "byteOffset" : 136,
+            "target" : 34963
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 198732,
+            "byteOffset" : 156688,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 198732,
+            "byteOffset" : 355420,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 132488,
+            "byteOffset" : 554152,
+            "target" : 34962
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 686640,
+            "uri" : "StudioChair_StarFern.bin"
+        }
+    ],
+    "images" : [
+        {
+            "name" : "StarFern_base",
+            "uri" : "StarFern_base.png"
+        },
+        {
+            "name" : "StarFern_normal",
+            "uri" : "StarFern_normal.png"
+        },
+        {
+            "name" : "StarFern_occlusion",
+            "uri" : "StarFern_occlusion.png"
+        },
+        {
+            "name" : "StarFern_metallicRoughness",
+            "uri" : "StarFern_metallicRoughness.png"
+        },
+        {
+            "name" : "ShadowMap",
+            "uri" : "ShadowMap.png"
+        }
+    ],
+    "materials" : [
+        {
+            "name" : "BaseMaterial",
+            "normalTexture" : {
+                "index" : 1
+            },
+            "occlusionTexture" : {
+                "index" : 2
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0
+                },
+                "metallicRoughnessTexture" : {
+                    "index" : 3
+                }
+            }
+        },
+        {
+            "alphaMode" : "BLEND",
+            "name" : "ShadowMap",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 4
+                },
+                "metallicFactor" : 0.0
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Plane",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 2,
+                        "POSITION" : 1,
+                        "TEXCOORD_0" : 3
+                    },
+                    "indices" : 0,
+                    "material" : 1
+                }
+            ]
+        },
+        {
+            "name" : "Untitled.004",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 6,
+                        "POSITION" : 5,
+                        "TEXCOORD_0" : 7
+                    },
+                    "indices" : 4,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Plane"
+        },
+        {
+            "mesh" : 1,
+            "name" : "StudioSeriesChairBSLTA04_LP"
+        }
+    ],
+    "samplers" : [
+        {}
+    ],
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                1,
+                0
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        },
+        {
+            "sampler" : 0,
+            "source" : 2
+        },
+        {
+            "sampler" : 0,
+            "source" : 3
+        },
+        {
+            "sampler" : 0,
+            "source" : 4
+        }
+    ]
+}
